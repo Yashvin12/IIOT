@@ -23,3 +23,28 @@ void loop() {
 
   delay(1000);
 }
+/*
+  int pirPin = 14;
+  int ledPin = 13;
+
+  void setup() {
+    pinMode(pirPin, INPUT);
+    pinMode(ledPin, OUTPUT);
+    Serial.begin(115200);
+  }
+
+  void loop() {
+    int motionState = digitalRead(pirPin);
+
+    if (motionState == HIGH) {
+      digitalWrite(ledPin, HIGH);
+      Serial.println("Motion detected!");
+    }
+    else {
+      digitalWrite(ledPin, LOW);
+      Serial.println("No motion detected!");
+    }
+
+    delay(1000);
+  }
+*/
