@@ -1,0 +1,254 @@
+==============================================================
+EXPERIMENT NO. 4 - SENSOR DATA TO CLOUD / WEB PAGE DISPLAY
+==============================================================
+Course  : 417526 - Computer Laboratory II: Industrial IoT
+Dept    : Artificial Intelligence & Data Science, ADYPSOE
+--------------------------------------------------------------
+
+AIM:
+Write a program for sending sensor data to the cloud and
+displaying on a web page.
+
+--------------------------------------------------------------
+SOFTWARE REQUIRED:
+  - Arduino IDE
+  - Web Browser (Chrome, Firefox, etc.)
+  - Wi-Fi Router or Mobile Hotspot
+
+HARDWARE REQUIRED:
+  Component                         Quantity
+  --------------------------------- --------
+  ESP32 WROOM-32 Board              1
+  Potentiometer (10K ohm)           1
+  Breadboard                        1
+  Male-to-Female Jumper Wires       3
+  Micro USB Data Cable              1
+  Laptop / PC                       1
+
+NOTE: This experiment uses ESP32 ONLY (needs built-in Wi-Fi).
+      Arduino Uno has no Wi-Fi - a Serial-only version is
+      provided for Arduino below.
+
+--------------------------------------------------------------
+THEORY:
+This experiment combines:
+  1. Analog sensing  - reading potentiometer via ESP32 ADC.
+  2. Web serving     - displaying sensor value on a webpage.
+  3. IoT principle   - physical sensor data accessible over
+                       a network from any device.
+
+Real-World Analogy:
+In industry, a sensor (temperature, pressure, flow rate)
+reads physical data and pushes it to a cloud dashboard
+(ThingSpeak, AWS IoT, Azure IoT Hub). Engineers monitor it
+remotely from any device. This experiment simulates that
+concept locally using ESP32 as a mini web server.
+
+How it works:
+  1. ESP32 reads potentiometer value (0-4095) from GPIO 34.
+  2. ESP32 connects to Wi-Fi.
+  3. ESP32 runs a web server on port 80.
+  4. When a browser visits ESP32's IP, the server reads the
+     potentiometer at that moment and shows it in HTML page.
+  5. Refreshing the browser page shows the updated value.
+
+--------------------------------------------------------------
+POTENTIOMETER PINOUT (Physical - 3 legs):
+
+  When looking at the pot from the FRONT (knob facing you):
+        Left leg  = Pin 1 (Power / VCC)
+        Middle leg= Pin 2 (Wiper / Signal output)
+        Right leg = Pin 3 (Ground / GND)
+
+--------------------------------------------------------------
+CONNECTIONS - FOR ESP32:
+
+  Potentiometer Pin    ESP32 Pin    Wire Color   Notes
+  -----------------    ---------    ----------   -----
+  Pin 1 (Left)         3.3V         Red          MUST use 3.3V!
+  Pin 2 (Middle/Wiper) GPIO 34      Yellow       ADC input
+  Pin 3 (Right)        GND          Black        Ground
+
+  IMPORTANT:
+  - GPIO 34 is INPUT ONLY on ESP32 - perfect for ADC reading.
+  - Use 3.3V (NOT 5V) to protect ESP32 ADC from damage.
+  - ADC on ESP32 reads 0 to 4095 (12-bit resolution).
+
+Step-by-step real-life wiring (ESP32):
+  1. Insert potentiometer into breadboard.
+     All 3 legs must be in SEPARATE rows.
+  2. Identify pins (knob facing you):
+     - Left leg  = Pin 1 (Power)
+     - Middle leg= Pin 2 (Wiper/Signal)
+     - Right leg = Pin 3 (Ground)
+  3. Red wire   : ESP32 3.3V pin   --> Pot Pin 1 (Left leg).
+  4. Yellow wire: ESP32 GPIO 34    --> Pot Pin 2 (Middle leg).
+  5. Black wire : ESP32 GND pin    --> Pot Pin 3 (Right leg).
+  6. Connect Micro USB cable to ESP32 (check the notch).
+  7. Plug into PC/Laptop. Blue LED should glow.
+
+ESP32 Circuit Summary:
+  3.3V  ----[Red]----->  Pot Pin 1 (Left)
+  GPIO34----[Yellow]--->  Pot Pin 2 (Middle / Wiper)
+  GND   ----[Black]---->  Pot Pin 3 (Right)
+  USB   ----[Cable]---->  PC / Laptop
+
+--------------------------------------------------------------
+CONNECTIONS - FOR ARDUINO UNO (Serial Only - No Wi-Fi):
+
+  Potentiometer Pin    Arduino Pin  Wire Color   Notes
+  -----------------    -----------  ----------   -----
+  Pin 1 (Left)         5V           Red          Power
+  Pin 2 (Middle/Wiper) A0           Yellow       Analog input
+  Pin 3 (Right)        GND          Black        Ground
+
+--------------------------------------------------------------
+CODE - FOR ESP32 (Web Server showing Sensor Data):
+
+  #include <WiFi.h>
+  #include <WebServer.h>
+
+  const char* ssid = "YOUR_WIFI_NAME";      // Change this!
+  const char* password = "YOUR_WIFI_PASSWORD"; // Change this!
+
+  const int potPin = 34;
+
+  WebServer server(80);
+
+  void handleRoot() {
+    int potValue = analogRead(potPin);
+
+    String webpage = "<html><body>";
+    webpage += "<h2>ESP32 Sensor Monitoring</h2>";
+    webpage += "<h3>Potentiometer Value: ";
+    webpage += String(potValue);
+    webpage += "</h3>";
+    webpage += "<p>Rotate the potentiometer to change value.</p>";
+    webpage += "<p><a href='/'>Refresh</a> to update.</p>";
+    webpage += "</body></html>";
+
+    server.send(200, "text/html", webpage);
+  }
+
+  void setup() {
+    Serial.begin(115200);
+    pinMode(potPin, INPUT);
+
+    WiFi.begin(ssid, password);
+    Serial.println("Connecting to Wi-Fi...");
+    while (WiFi.status() != WL_CONNECTED) {
+      delay(500);
+      Serial.print(".");
+    }
+    Serial.println("\nWi-Fi Connected!");
+    Serial.println(WiFi.localIP()); // Note down this IP!
+
+    server.on("/", HTTP_GET, handleRoot);
+    server.begin();
+    Serial.println("Web server started!");
+  }
+
+  void loop() {
+    server.handleClient();
+    delay(100);
+  }
+
+--------------------------------------------------------------
+CODE - FOR ARDUINO UNO (Serial Monitor only - no Wi-Fi):
+
+  const int potPin = A0;
+  int potValue = 0;
+
+  void setup() {
+    Serial.begin(9600);
+  }
+
+  void loop() {
+    potValue = analogRead(potPin);
+
+    Serial.print("Sensor Value: ");
+    Serial.println(potValue);
+
+    if (potValue > 500) {
+      Serial.println(">> HIGH VALUE ALERT!");
+    }
+
+    delay(1000);
+  }
+
+--------------------------------------------------------------
+LIBRARY INSTALLATION (ESP32 WebServer):
+  1. Arduino IDE > Sketch > Include Library > Manage Libraries.
+  2. Search "WebServer_ESP32_ENC" > Install it.
+  (The built-in WebServer.h usually works for standard ESP32.)
+
+--------------------------------------------------------------
+PROCEDURE:
+
+Step 1 - Setup Arduino IDE for ESP32:
+  1. File > Preferences > Add ESP32 board URL:
+     https://raw.githubusercontent.com/espressif/arduino-esp32
+     /gh-pages/package_esp32_index.json
+  2. Tools > Board > Board Manager > search "esp32" > Install.
+  3. Install CH340G driver if ESP32 not detected.
+
+Step 2 - Update Credentials:
+  - Set YOUR_WIFI_NAME to your Wi-Fi SSID.
+  - Set YOUR_WIFI_PASSWORD to your Wi-Fi password.
+  - PC/phone must be on the SAME Wi-Fi network.
+
+Step 3 - Upload Code:
+  1. Tools > Board > ESP32 Dev Module.
+  2. Tools > Port > COM3 or COM4.
+  3. Click Upload. Wait for "Done uploading".
+
+Step 4 - Get IP Address:
+  1. Open Tools > Serial Monitor > set baud to 115200.
+  2. Press EN/RST button on ESP32.
+  3. Note the IP address shown (e.g. 192.168.1.105).
+
+Step 5 - View Sensor Data on Browser:
+  1. Open browser on PC or phone (same Wi-Fi).
+  2. Type: http://192.168.1.105 (replace with your IP).
+  3. Webpage shows: "Potentiometer Value: 2233" (example).
+  4. Rotate the pot > Refresh browser > value updates.
+
+--------------------------------------------------------------
+CODE EXPLANATION:
+
+  #include <WiFi.h>            : ESP32 Wi-Fi library
+  #include <WebServer.h>       : HTTP web server library
+  ssid / password              : Wi-Fi network credentials
+  potPin = 34                  : GPIO 34 analog input pin
+  WiFi.begin(ssid, password)   : Connect ESP32 to Wi-Fi
+  WiFi.localIP()               : Get ESP32's IP address
+  WebServer server(80)         : HTTP server on port 80
+  analogRead(potPin)           : Read 0-4095 from potentiometer
+  server.on("/",HTTP_GET,...)  : Map URL "/" to handleRoot()
+  server.send(200,"text/html") : Send HTML page to browser
+  server.handleClient()        : Handle all HTTP requests
+  delay(100)                   : Small delay to reduce CPU load
+
+--------------------------------------------------------------
+CONCLUSION:
+This experiment demonstrates sending real-time sensor data
+(potentiometer) to a locally hosted web page via ESP32 web
+server over Wi-Fi. This simulates the fundamental IIoT flow:
+  Physical Sensor -> Edge Device (ESP32) -> Network -> Display
+In real industrial systems, data would go to cloud platforms
+like AWS IoT, ThingSpeak, or Azure IoT Hub.
+
+--------------------------------------------------------------
+OBSERVATIONS TABLE:
+
+  Pot Position         Displayed Value on Webpage
+  ----------------     --------------------------
+  Fully Left (min)     ~0
+  Quarter turn         ~1000
+  Middle               ~2048
+  Three-quarter turn   ~3000
+  Fully Right (max)    ~4095
+
+Note: Refresh the browser page to see updated values.
+
+==============================================================

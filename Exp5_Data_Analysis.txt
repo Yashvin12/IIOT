@@ -1,0 +1,245 @@
+==============================================================
+EXPERIMENT NO. 5 - INDUSTRIAL IoT DATA ANALYSIS USING EXCEL
+==============================================================
+Course  : 417526 - Computer Laboratory II: Industrial IoT
+Dept    : Artificial Intelligence & Data Science, ADYPSOE
+--------------------------------------------------------------
+
+AIM:
+Write a program for performing industrial data analysis
+using relevant tools and techniques.
+
+--------------------------------------------------------------
+SOFTWARE REQUIRED:
+  - Microsoft Excel (or Google Sheets as alternative)
+  - Kaggle (for dataset download) : kaggle.com
+
+HARDWARE REQUIRED:
+  - Laptop / PC with Excel installed
+
+NOTE: This is a pure software experiment.
+      No microcontroller hardware is required.
+
+--------------------------------------------------------------
+THEORY:
+
+Internet of Things (IoT) Data Analytics:
+The IoT is a network of interconnected devices that collect
+and share data automatically. In industrial settings (IIoT),
+thousands of sensors continuously generate data such as
+temperature, pressure, humidity, vibration, and flow rates.
+
+IoT Data Analytics means collecting, examining and
+interpreting this sensor data to:
+  - Detect patterns and anomalies
+  - Make data-driven decisions
+  - Predict failures before they occur (Predictive Maintenance)
+  - Optimize industrial processes
+
+Four Main Components of IoT Data Analytics:
+
+  1. Data Collection:
+     IoT sensors (temperature, humidity, pressure, motion)
+     collect raw data continuously from the environment.
+
+  2. Data Storage:
+     Massive sensor data is stored in cloud databases or
+     local servers efficiently.
+
+  3. Data Processing:
+     Data cleaning, transformation, and normalization is
+     done to prepare data for analysis. Removes errors and
+     makes data consistent.
+
+  4. Data Analysis and Visualization:
+     Statistical tools, machine learning algorithms, charts
+     and dashboards are used to find patterns and insights.
+
+Why Excel for IoT Data Analysis:
+  - Quick and accessible for small to medium datasets
+  - Built-in chart and graph generation
+  - Pivot Tables for data summarization
+  - No programming required - ideal for beginners
+  - Widely used in industry for quick data exploration
+
+--------------------------------------------------------------
+DATASET INFORMATION:
+
+  Name    : Farm Temperature and Humidity
+  Source  : Kaggle (kaggle.com/datasets)
+  File    : Excel / CSV format (~86 KB)
+  Period  : 3 months of readings
+  Farms   : 4 farms, each 1 km apart
+  Interval: Every 1 hour (24 readings per day)
+  Total   : approx. 2160 readings per farm
+
+  Column 1 : Temperature readings in Celsius (e.g. 28.5, 31.2)
+  Column 2 : Humidity readings in % (e.g. 65.3, 72.1)
+  Row 1    : Column headers
+  Row 2+   : Hourly sensor data
+
+--------------------------------------------------------------
+PROCEDURE:
+
+PART 1 - Download Dataset from Kaggle:
+  1. Open browser > go to kaggle.com.
+  2. Create a free account or sign in with Google.
+  3. Search "Farm Temperature and Humidity" in search bar.
+  4. Click the dataset > click Download button.
+  5. Extract the ZIP file.
+  6. Open the .csv or .xlsx file in Microsoft Excel.
+
+PART 2 - Temperature Analysis (1 Day = 24 Hours):
+  Goal: See how temperature changes during one full day.
+
+  Steps:
+  1. Open the Excel file.
+  2. Look at Column A (Temperature readings).
+  3. Select cells A2 to A25
+     (Row 2 to Row 25 = 24 rows = 24 hours = 1 day).
+  4. Click Insert tab in the top menu.
+  5. Click Recommended Charts.
+  6. Select Line Chart (best for time-series data).
+  7. Click OK. The graph will appear.
+  8. Observe the temperature pattern through the day.
+
+  Expected Result (1 Day / 24 Hours):
+  - Temperature is LOW at midnight (12 AM).
+  - Rises gradually through the morning.
+  - Reaches PEAK at 12 PM (noon) - maximum temperature.
+  - Falls again in afternoon and evening.
+  - Returns to LOW at night.
+
+PART 3 - Temperature Analysis (2 Days = 48 Hours):
+  Goal: Confirm the daily temperature cycle repeats.
+
+  Steps:
+  1. Select cells A2 to A49
+     (48 rows = 48 hours = 2 full days).
+  2. Click Insert > Recommended Charts > Line Chart > OK.
+  3. Observe the pattern.
+
+  Expected Result (2 Days / 48 Hours):
+  - Peak at position 12 (12 PM Day 1).
+  - Peak again at position 36 (12 PM Day 2) (24 + 12 = 36).
+  - Minimum at position 24 (midnight between Day 1 and Day 2).
+  - Confirms the CYCLIC daily temperature pattern.
+
+PART 4 - Humidity Analysis (1 Day = 24 Hours):
+  Goal: See how humidity changes during a day.
+
+  Steps:
+  1. Click on Column B (Humidity readings).
+  2. Select cells B2 to B25 (24 hours of humidity data).
+  3. Click Insert > Recommended Charts.
+  4. Select Scatter Plot (recommended for humidity).
+  5. Click OK and observe.
+
+  Expected Result (1 Day Humidity):
+  - Humidity is HIGHEST at night (inverse of temperature).
+  - Humidity FALLS during the day as temperature rises.
+  - Notable DIP around 1 PM (13th reading).
+
+PART 5 - Humidity Analysis (2 Days = 48 Hours):
+  Steps:
+  1. Select cells B2 to B49 (48 hours).
+  2. Insert > Scatter Plot.
+  3. Observe pattern.
+
+  Expected Result (2 Days Humidity):
+  - Cyclic pattern: humidity drops at hour 13 (1 PM Day 1).
+  - Drops again at hour 37 (24+13 = 1 PM Day 2).
+  - Confirms temperature and humidity are INVERSELY related.
+
+PART 6 - Repeat for Other Farms (Columns C, D, E, F):
+  1. Select corresponding columns for farms 2, 3, 4.
+  2. Repeat same charting procedure.
+  3. Compare how temperature and humidity varies between farms.
+
+--------------------------------------------------------------
+CHART TYPES USED:
+
+  Chart Type    Best Used For              When to Use
+  ----------    -------------------        -------------------
+  Line Chart    Continuous data over time  Temperature trends
+  Scatter Plot  Discrete data, fluctuation Humidity variations
+  Bar Chart     Comparing categories       Farm vs farm
+  Histogram     Distribution of values    Frequency of ranges
+
+--------------------------------------------------------------
+USEFUL EXCEL FUNCTIONS:
+
+  =AVERAGE(A2:A25)       : Average temperature for 1 day
+  =MAX(A2:A25)           : Maximum temperature (peak)
+  =MIN(A2:A25)           : Minimum temperature (night)
+  =STDEV(A2:A25)         : Standard deviation (variability)
+  =CORREL(A2:A25,B2:B25) : Correlation between temp & humidity
+                           (should be negative value)
+
+--------------------------------------------------------------
+HOW TO ADD CHART TITLE AND LABELS:
+  1. Click on the chart.
+  2. Click Chart Design > Add Chart Element > Chart Title
+     > Above Chart.
+  3. Type: "Temperature Variation - 24 Hours"
+  4. Add Axis Titles:
+     - X-axis: "Time (Hours)"
+     - Y-axis: "Temperature (Celsius)"
+
+--------------------------------------------------------------
+RESULTS AND INFERENCES:
+
+Temperature Results:
+  1. 1-Day (24 hrs): Peak at hour 12 (noon), minimum at
+     hours 0 and 24 (midnight).
+  2. 2-Day (48 hrs): Peak at hour 12 and hour 36 - confirms
+     the daily cyclic pattern.
+  3. Farms near equator (India) show consistent daily swing.
+  4. Small variation between 4 farms due to microclimate.
+
+Humidity Results:
+  1. 1-Day: Humidity peaks at night, dips at ~1 PM.
+  2. 2-Day: Cyclic - humidity drops at hour 13 and hour 37.
+  3. Inverse relationship with temperature confirmed.
+  4. Scatter plots show more detail than line charts.
+
+--------------------------------------------------------------
+IoT DATA ANALYTICS COMPONENTS (Applied to This Experiment):
+
+  Component           This Experiment
+  ---------           ---------------
+  Data Collection     Farm sensors collected data hourly
+  Data Storage        Stored as Excel/CSV file (cloud in real)
+  Data Processing     Selecting rows/columns, viewing data
+  Data Analysis       Excel charts, AVERAGE, MAX, MIN functions
+  Data Visualization  Line charts, scatter plots in Excel
+
+--------------------------------------------------------------
+CONCLUSION:
+IoT data analysis of Farm Temperature and Humidity was
+successfully performed using Microsoft Excel. Temperature
+follows a predictable daily cycle (peak at noon), and
+humidity follows an inverse pattern. Excel's charting tools
+allow quick visualization of patterns for data-driven
+decisions in industrial and agricultural IoT applications.
+
+In real IIoT systems, this analysis would be done on:
+  Power BI, Tableau, ThingSpeak, or custom cloud dashboards.
+
+--------------------------------------------------------------
+STUDENT OBSERVATIONS TABLE (Fill during experiment):
+
+  Day    Hour    Temp (C)    Humidity (%)    Observation
+  -----  ------  --------    ------------    -----------
+  Day 1  0  AM   ________    ____________    ___________
+  Day 1  6  AM   ________    ____________    ___________
+  Day 1  12 PM   ________    ____________    ___________
+  Day 1  6  PM   ________    ____________    ___________
+  Day 2  12 AM   ________    ____________    ___________
+  Day 2  12 PM   ________    ____________    ___________
+  Day 2  12 AM   ________    ____________    ___________
+
+Note: Fill the table from your downloaded dataset and
+      match chart peaks/troughs with the hours above.
+
+==============================================================

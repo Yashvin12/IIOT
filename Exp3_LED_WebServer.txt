@@ -1,0 +1,245 @@
+==============================================================
+EXPERIMENT NO. 3 - ESP32 LED WEB SERVER (CPS USER INTERFACE)
+==============================================================
+Course  : 417526 - Computer Laboratory II: Industrial IoT
+Dept    : Artificial Intelligence & Data Science, ADYPSOE
+--------------------------------------------------------------
+
+AIM:
+Write a program to design and develop a user interface for
+monitoring and controlling a CPS (Cyber-Physical System).
+
+--------------------------------------------------------------
+SOFTWARE REQUIRED:
+  - Arduino IDE
+  - Web Browser (Chrome, Firefox, etc.)
+  - Wi-Fi Router or Mobile Hotspot
+
+HARDWARE REQUIRED:
+  Component                         Quantity
+  --------------------------------- --------
+  ESP32 WROOM-32 Board              1
+  LED (any color)                   2
+  Resistor (220 ohm)                2
+  Breadboard                        1
+  Male-to-Female Jumper Wires       6+
+  Micro USB Data Cable              1
+  Laptop / PC                       1
+
+NOTE: This experiment uses ESP32 ONLY.
+      Arduino Uno does NOT have built-in Wi-Fi.
+
+--------------------------------------------------------------
+THEORY:
+CPS (Cyber-Physical System) integrates physical devices
+(LEDs, motors, sensors) with computer-based control over
+a network. The digital world and physical world communicate
+in both directions.
+
+The ESP32 creates an HTTP web server on port 80 and connects
+to your Wi-Fi. Any phone or laptop on the SAME Wi-Fi can open
+a browser, type the ESP32's IP address, and see a webpage
+with buttons to control the LEDs.
+
+How it works step by step:
+  1. ESP32 connects to Wi-Fi using your SSID and password.
+  2. ESP32 starts a web server on port 80.
+  3. A browser sends HTTP GET request to ESP32's IP address.
+  4. ESP32 serves an HTML page with ON/OFF buttons for LEDs.
+  5. User clicks a button -> URL like /12/on is sent to ESP32.
+  6. ESP32 processes it, turns LED on/off, sends updated page.
+
+--------------------------------------------------------------
+LED PINOUT:
+  Longer leg  = Anode  (+) positive
+  Shorter leg = Cathode (-) negative
+
+--------------------------------------------------------------
+CONNECTIONS - FOR ESP32:
+
+  LED 1 (connected to GPIO 12):
+  Component      From           To             Wire Color
+  ---------      ----           --             ----------
+  220 ohm Res.   ESP32 GPIO 12  LED1 Anode(+)  (inline)
+  LED1 Cathode   LED1 (-)       ESP32 GND      Black
+
+  LED 2 (connected to GPIO 14):
+  Component      From           To             Wire Color
+  ---------      ----           --             ----------
+  220 ohm Res.   ESP32 GPIO 14  LED2 Anode(+)  (inline)
+  LED2 Cathode   LED2 (-)       ESP32 GND      Black
+
+  Full Connection Summary:
+  ESP32 Pin   Connected To                 Purpose
+  ---------   ------------                 -------
+  GPIO 12     220 ohm res --> LED1 Anode   Controls LED 1
+  GPIO 14     220 ohm res --> LED2 Anode   Controls LED 2
+  GND         Both LED Cathodes (-)        Common ground
+  USB Port    PC via Micro USB cable       Power & Programming
+
+Step-by-step real-life wiring (ESP32):
+  1. Insert both LEDs into breadboard in separate rows.
+     (Long leg = anode, Short leg = cathode in different rows)
+  2. Insert two 220 ohm resistors on breadboard:
+     - Resistor 1: one end at LED1 anode row, other in free row.
+     - Resistor 2: one end at LED2 anode row, other in free row.
+  3. Wire LED 1:
+     - Male-female wire: ESP32 GPIO 12 -> free end of Resistor 1.
+     - Wire: LED1 cathode (-) -> ESP32 GND.
+  4. Wire LED 2:
+     - Male-female wire: ESP32 GPIO 14 -> free end of Resistor 2.
+     - Wire: LED2 cathode (-) -> ESP32 GND.
+  5. Connect Micro USB to ESP32 (check the notch direction).
+  6. Plug into PC. Blue LED on ESP32 should glow.
+
+Breadboard Layout (simplified):
+  Row A : GPIO12 wire ---- Resistor1 end1
+  Row B : Resistor1 end2 - LED1 Anode (+)
+  Row C : LED1 Cathode (-) - GND wire
+
+  Row D : GPIO14 wire ---- Resistor2 end1
+  Row E : Resistor2 end2 - LED2 Anode (+)
+  Row F : LED2 Cathode (-) - GND wire
+
+--------------------------------------------------------------
+CODE - FOR ESP32:
+
+  #include <WiFi.h>
+  #include <WebServer.h>
+
+  const char* ssid = "YOUR_WIFI_NAME";      // Change this!
+  const char* password = "YOUR_WIFI_PASSWORD"; // Change this!
+
+  const int led1 = 12;
+  const int led2 = 14;
+
+  WebServer server(80);
+
+  String webpage() {
+    String html = "<html><body>";
+    html += "<h2>ESP32 LED Control</h2>";
+    html += "<h3>LED 1</h3>";
+    html += "<a href='/12/on'><button>LED 1 ON</button></a>";
+    html += "<a href='/12/off'><button>LED 1 OFF</button></a>";
+    html += "<h3>LED 2</h3>";
+    html += "<a href='/14/on'><button>LED 2 ON</button></a>";
+    html += "<a href='/14/off'><button>LED 2 OFF</button></a>";
+    html += "</body></html>";
+    return html;
+  }
+
+  void setup() {
+    Serial.begin(115200);
+    pinMode(led1, OUTPUT);
+    pinMode(led2, OUTPUT);
+    digitalWrite(led1, LOW);
+    digitalWrite(led2, LOW);
+
+    WiFi.begin(ssid, password);
+    Serial.println("Connecting to Wi-Fi");
+    while (WiFi.status() != WL_CONNECTED) {
+      delay(500);
+      Serial.print(".");
+    }
+    Serial.println("\nWi-Fi Connected!");
+    Serial.println(WiFi.localIP()); // Note down this IP address!
+
+    server.on("/", []() {
+      server.send(200, "text/html", webpage());
+    });
+    server.on("/12/on", []() {
+      digitalWrite(led1, HIGH);
+      server.send(200, "text/html", webpage());
+    });
+    server.on("/12/off", []() {
+      digitalWrite(led1, LOW);
+      server.send(200, "text/html", webpage());
+    });
+    server.on("/14/on", []() {
+      digitalWrite(led2, HIGH);
+      server.send(200, "text/html", webpage());
+    });
+    server.on("/14/off", []() {
+      digitalWrite(led2, LOW);
+      server.send(200, "text/html", webpage());
+    });
+
+    server.begin();
+    Serial.println("Web server started!");
+  }
+
+  void loop() {
+    server.handleClient();
+  }
+
+--------------------------------------------------------------
+PROCEDURE:
+
+Step 1 - Arduino IDE Setup for ESP32:
+  1. Open Arduino IDE.
+  2. File > Preferences > Add this URL in Board Manager URLs:
+     https://raw.githubusercontent.com/espressif/arduino-esp32
+     /gh-pages/package_esp32_index.json
+  3. Tools > Board > Board Manager > search "esp32" > Install.
+  4. Install CH340G driver if ESP32 not detected by PC.
+
+Step 2 - Update Wi-Fi Credentials in Code:
+  - Replace YOUR_WIFI_NAME with your hotspot/router name.
+  - Replace YOUR_WIFI_PASSWORD with your actual password.
+  - Your PC/phone and ESP32 must be on the SAME network.
+
+Step 3 - Upload Code:
+  1. Tools > Board > ESP32 Dev Module.
+  2. Tools > Port > COM3 or COM4 (whichever appears).
+  3. Click Upload (right arrow icon).
+  4. Wait for "Done uploading".
+
+Step 4 - Find ESP32 IP Address:
+  1. Open Tools > Serial Monitor.
+  2. Set baud rate to 115200.
+  3. Press EN/RST button on ESP32.
+  4. Wait for "Wi-Fi Connected!" message.
+  5. Note down the IP address shown (e.g., 192.168.1.105).
+
+Step 5 - Control LEDs from Browser:
+  1. On PC or phone (same Wi-Fi), open a web browser.
+  2. Type in address bar: http://192.168.1.105 (your ESP32 IP).
+  3. Webpage appears with LED 1 and LED 2 buttons.
+  4. Click "LED 1 ON" -> GPIO 12 goes HIGH -> LED 1 lights up.
+  5. Click "LED 1 OFF"-> GPIO 12 goes LOW  -> LED 1 turns off.
+  6. Same for LED 2 (GPIO 14).
+  7. Serial Monitor shows: /12/on or /12/off URLs received.
+
+--------------------------------------------------------------
+CODE EXPLANATION:
+
+  #include <WiFi.h>              : ESP32 Wi-Fi library
+  #include <WebServer.h>         : HTTP web server library
+  WiFi.begin(ssid, password)     : Connect ESP32 to Wi-Fi
+  WiFi.localIP()                 : Get ESP32 IP on network
+  WebServer server(80)           : Create server on port 80
+  server.on("/12/on", ...)       : Handle URL /12/on
+  digitalWrite(led1, HIGH)       : Turn LED 1 ON
+  server.send(200,"text/html",..): Send HTML page to browser
+  server.handleClient()          : Listen for browser requests
+
+--------------------------------------------------------------
+CONCLUSION:
+This experiment demonstrates a Cyber-Physical System where
+physical LEDs are controlled through a web interface over
+Wi-Fi. The ESP32 acts as both controller and web server,
+bridging the physical and digital worlds - a core concept
+of Industrial IoT.
+
+--------------------------------------------------------------
+OBSERVATIONS TABLE:
+
+  Browser Action    URL Requested  GPIO State    LED State
+  --------------    -------------  ----------    ---------
+  Page load         /              No change     Previous
+  Click LED 1 ON    /12/on         GPIO 12 HIGH  LED 1 ON
+  Click LED 1 OFF   /12/off        GPIO 12 LOW   LED 1 OFF
+  Click LED 2 ON    /14/on         GPIO 14 HIGH  LED 2 ON
+  Click LED 2 OFF   /14/off        GPIO 14 LOW   LED 2 OFF
+
+==============================================================

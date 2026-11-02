@@ -1,0 +1,218 @@
+==============================================================
+EXPERIMENT NO. 2 - PIR SENSOR INTERFACING (MOTION DETECTION)
+==============================================================
+Course  : 417526 - Computer Laboratory II: Industrial IoT
+Dept    : Artificial Intelligence & Data Science, ADYPSOE
+--------------------------------------------------------------
+
+AIM:
+Write an Arduino / Raspberry Pi program for interfacing
+with a PIR sensor.
+
+--------------------------------------------------------------
+SOFTWARE REQUIRED:
+  - Tinkercad (Online Simulator) : tinkercad.com
+  - Arduino IDE (for real hardware)
+
+HARDWARE REQUIRED:
+  Component                         Quantity
+  --------------------------------- --------
+  Arduino Uno OR ESP32 WROOM-32     1
+  PIR Sensor (HC-SR501)             1
+  LED (any color)                   1
+  Resistor (220 ohm)                1
+  Breadboard                        1
+  Jumper Wires                      Several
+  USB Cable (USB-B or Micro USB)    1
+  Laptop / PC                       1
+
+--------------------------------------------------------------
+THEORY:
+PIR (Passive Infrared) Sensor detects motion by sensing
+changes in infrared radiation emitted by warm objects
+(especially humans). It does NOT emit anything - it only
+receives/detects IR radiation.
+
+How PIR works:
+  - Every object above absolute zero emits infrared radiation.
+  - Humans emit IR at approx. 9.4 micrometer wavelength.
+  - The PIR sensor has a pyroelectric element split into
+    two halves.
+  - When a person moves across the sensor's view, one half
+    detects IR first, then the other - creating a signal.
+  - This causes the output (OUT) pin to go HIGH.
+
+Advantages of PIR Sensors:
+  - Small in size
+  - Wide detection angle (up to 120 degrees)
+  - Easy to interface
+  - Inexpensive
+  - Low power consumption
+  - Does not wear out
+
+HC-SR501 PIR Sensor - 3 pins (left to right):
+  VCC (Left)  : Power input (5V for Arduino)
+  OUT (Middle): Digital output - HIGH when motion detected
+  GND (Right) : Ground
+
+--------------------------------------------------------------
+CONNECTIONS - FOR ARDUINO UNO (Primary):
+
+  Component Pin       Arduino Pin    Wire Color   Notes
+  ---------------     -----------    ----------   -----
+  PIR VCC             5V             Red          Power to PIR
+  PIR OUT             Pin 2          Yellow       Motion signal
+  PIR GND             GND            Black        Ground
+  LED Anode (+)       Pin 13 via     Orange       Built-in LED
+                      220 ohm res.
+  LED Cathode (-)     GND            Black        Ground
+
+Step-by-step real-life wiring (Arduino):
+  1. Place PIR sensor on breadboard or hold it with wires.
+  2. Red wire   : Arduino 5V   --> PIR VCC (Left pin).
+  3. Yellow wire: Arduino Pin 2--> PIR OUT (Middle pin).
+  4. Black wire : Arduino GND  --> PIR GND (Right pin).
+  5. Insert LED into breadboard (long leg = anode +).
+  6. 220 ohm resistor: one end to Arduino Pin 13,
+     other end to LED anode (long leg).
+  7. Black wire: LED cathode (short leg) --> Arduino GND.
+  8. Connect Arduino to PC using USB-B cable.
+
+Arduino Circuit Summary:
+  5V  --------> PIR VCC
+  GND --------> PIR GND
+  Pin 2 ------> PIR OUT
+  Pin 13 --[220ohm]--> LED Anode(+)
+  GND --------> LED Cathode(-)
+
+--------------------------------------------------------------
+CONNECTIONS - FOR ESP32:
+
+  Component Pin       ESP32 Pin      Wire Color   Notes
+  ---------------     ---------      ----------   -----
+  PIR VCC             VIN or 3.3V    Red          Prefers 5V(VIN)
+  PIR OUT             GPIO 14        Yellow       Motion signal
+  PIR GND             GND            Black        Ground
+  LED Anode (+)       GPIO 13        Orange       via 220 ohm res.
+                      via 220 ohm
+  LED Cathode (-)     GND            Black        Ground
+
+Step-by-step real-life wiring (ESP32):
+  1. Red wire   : ESP32 VIN (5V) --> PIR VCC.
+  2. Yellow wire: ESP32 GPIO 14  --> PIR OUT.
+  3. Black wire : ESP32 GND      --> PIR GND.
+  4. 220 ohm resistor: GPIO 13 --> LED anode (long leg).
+  5. Black wire: LED cathode (short leg) --> ESP32 GND.
+  6. Connect Micro USB to ESP32 --> PC.
+
+--------------------------------------------------------------
+CODE - FOR ARDUINO UNO (pirPin=2, ledPin=13):
+
+  int pirPin = 2;
+  int ledPin = 13;
+
+  void setup() {
+    pinMode(pirPin, INPUT);
+    pinMode(ledPin, OUTPUT);
+    Serial.begin(9600);
+  }
+
+  void loop() {
+    int motionState = digitalRead(pirPin);
+
+    if (motionState == HIGH) {
+      digitalWrite(ledPin, HIGH);
+      Serial.println("Motion detected!");
+    }
+    else {
+      digitalWrite(ledPin, LOW);
+      Serial.println("No motion detected!");
+    }
+
+    delay(1000);
+  }
+
+--------------------------------------------------------------
+CODE - FOR ESP32 (pirPin=14, ledPin=13):
+
+  int pirPin = 14;
+  int ledPin = 13;
+
+  void setup() {
+    pinMode(pirPin, INPUT);
+    pinMode(ledPin, OUTPUT);
+    Serial.begin(115200);
+  }
+
+  void loop() {
+    int motionState = digitalRead(pirPin);
+
+    if (motionState == HIGH) {
+      digitalWrite(ledPin, HIGH);
+      Serial.println("Motion detected!");
+    }
+    else {
+      digitalWrite(ledPin, LOW);
+      Serial.println("No motion detected!");
+    }
+
+    delay(1000);
+  }
+
+--------------------------------------------------------------
+TINKERCAD SIMULATION STEPS:
+  1. Go to tinkercad.com > Sign In > Circuits > New Circuit.
+  2. Drag: Arduino Uno, PIR sensor, LED, 220 ohm resistor.
+  3. Make connections as per the Arduino table above.
+  4. Click Code (top right) > switch from Blocks to Text.
+  5. Click Continue > paste the Arduino code.
+  6. Click Start Simulation.
+  7. Wave cursor near PIR to trigger motion.
+  8. Open Serial Monitor to see messages.
+
+--------------------------------------------------------------
+PROCEDURE (Real Hardware):
+  1. Assemble all components on breadboard.
+  2. Make all connections as per connection table.
+  3. Open Arduino IDE and paste the code.
+  4. Tools > Board > Arduino Uno (or ESP32 Dev Module).
+  5. Tools > Port > Select correct COM port.
+  6. Click Upload.
+  7. Open Serial Monitor (9600 baud Arduino / 115200 ESP32).
+  8. Walk in front of PIR -> LED turns ON, "Motion detected!".
+  9. Move away -> LED turns OFF, "No motion detected!".
+
+--------------------------------------------------------------
+IMPORTANT FUNCTIONS EXPLAINED:
+
+  pinMode(pirPin, INPUT)   : PIR pin reads motion signal
+  pinMode(ledPin, OUTPUT)  : LED pin controls LED
+  digitalRead(pirPin)      : Reads HIGH (motion) or LOW
+  digitalWrite(ledPin,HIGH): Turns LED ON
+  digitalWrite(ledPin,LOW) : Turns LED OFF
+  Serial.begin(9600)       : Starts serial for debugging
+  Serial.println(...)      : Prints message to Serial Monitor
+  delay(1000)              : 1 second pause between readings
+
+--------------------------------------------------------------
+CONCLUSION:
+This experiment demonstrates interfacing a PIR motion sensor
+with Arduino/ESP32. When sensor detects a person, it outputs
+HIGH - turning on the LED and sending "Motion detected!" to
+Serial Monitor. This mimics real-world security systems and
+motion-activated lights.
+
+--------------------------------------------------------------
+OBSERVATIONS TABLE:
+
+  Scenario              PIR OUT  LED State  Serial Output
+  --------------------  -------  ---------  -----------------------
+  No person in range    LOW      OFF        "No motion detected!"
+  Person enters range   HIGH     ON         "Motion detected!"
+  Person leaves range   LOW      OFF        "No motion detected!"
+
+HC-SR501 Adjustment Tips:
+  - Sensitivity potentiometer : controls range (3m to 7m)
+  - Time delay potentiometer  : output HIGH duration (3s-300s)
+
+==============================================================

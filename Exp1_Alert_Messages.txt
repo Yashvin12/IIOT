@@ -1,0 +1,185 @@
+==============================================================
+EXPERIMENT NO. 1 - SENDING ALERT MESSAGES USING POTENTIOMETER
+==============================================================
+Course  : 417526 - Computer Laboratory II: Industrial IoT
+Dept    : Artificial Intelligence & Data Science, ADYPSOE
+--------------------------------------------------------------
+
+AIM:
+Write a program for sending alert messages to the user for
+controlling and interacting with your environment.
+
+--------------------------------------------------------------
+SOFTWARE REQUIRED:
+  - Arduino IDE
+
+HARDWARE REQUIRED:
+  Component                         Quantity
+  --------------------------------- --------
+  ESP32 WROOM-32 OR Arduino Uno     1
+  Potentiometer (10K ohm)           1
+  Breadboard                        1
+  Male-to-Female Jumper Wires       3
+  Micro USB Data Cable              1
+  Laptop / PC                       1
+
+--------------------------------------------------------------
+THEORY:
+A potentiometer is a three-terminal variable resistor.
+The middle (wiper) pin outputs a voltage that varies as you
+rotate the knob from 0V to the supply voltage.
+The microcontroller reads this via its ADC (Analog-to-Digital
+Converter) and converts it to a digital number.
+
+  ESP32 ADC  : 12-bit -> values range from 0 to 4095
+  Arduino ADC: 10-bit -> values range from 0 to 1023
+
+The program reads the potentiometer and prints the value to
+Serial Monitor. If the value exceeds the threshold, a
+"WARNING" alert is printed - simulating an industrial alarm.
+
+--------------------------------------------------------------
+POTENTIOMETER PINOUT (Physical - 3 legs):
+
+  When looking at the pot from the FRONT (knob facing you):
+
+        Left leg  = Pin 1 (Power / VCC)
+        Middle leg= Pin 2 (Wiper / Signal output)
+        Right leg = Pin 3 (Ground / GND)
+
+--------------------------------------------------------------
+CONNECTIONS - FOR ESP32:
+
+  Potentiometer Pin    ESP32 Pin    Wire Color   Notes
+  -----------------    ---------    ----------   -----
+  Pin 1 (Left)         3.3V         Red          DO NOT use 5V!
+  Pin 2 (Middle/Wiper) GPIO 34      Yellow       ADC input pin
+  Pin 3 (Right)        GND          Black        Ground
+
+  IMPORTANT: GPIO 34 on ESP32 is INPUT ONLY - perfect for ADC.
+  ALWAYS use 3.3V (not 5V) to protect ESP32 ADC.
+
+Step-by-step real-life wiring (ESP32):
+  1. Insert potentiometer into breadboard (3 legs in 3 rows).
+  2. Red wire   : ESP32 3.3V pin  --> Pot Left leg (Pin 1).
+  3. Yellow wire: ESP32 GPIO 34   --> Pot Middle leg (Pin 2).
+  4. Black wire : ESP32 GND pin   --> Pot Right leg (Pin 3).
+  5. Connect Micro USB cable to ESP32 (check the notch).
+  6. Plug USB into PC. Blue LED on ESP32 should glow.
+
+ESP32 Board Quick Reference:
+  3.3V  ----[Red]----->  Pot Pin 1 (Left)
+  GPIO34----[Yellow]--->  Pot Pin 2 (Middle/Wiper)
+  GND   ----[Black]---->  Pot Pin 3 (Right)
+  USB   ----[Cable]---->  PC/Laptop
+
+--------------------------------------------------------------
+CONNECTIONS - FOR ARDUINO UNO:
+
+  Potentiometer Pin    Arduino Pin  Wire Color   Notes
+  -----------------    -----------  ----------   -----
+  Pin 1 (Left)         5V           Red          Power
+  Pin 2 (Middle/Wiper) A0           Yellow       Analog input
+  Pin 3 (Right)        GND          Black        Ground
+
+Step-by-step real-life wiring (Arduino):
+  1. Insert potentiometer into breadboard.
+  2. Red wire   : Arduino 5V  --> Pot Left leg (Pin 1).
+  3. Yellow wire: Arduino A0  --> Pot Middle leg (Pin 2).
+  4. Black wire : Arduino GND --> Pot Right leg (Pin 3).
+  5. Connect USB-B cable from Arduino to PC.
+
+--------------------------------------------------------------
+CODE - FOR ESP32 (GPIO 34, 12-bit ADC, threshold = 2000):
+
+  const int potPin = 34;
+  int potValue = 0;
+
+  void setup() {
+    Serial.begin(115200);
+    delay(1000);
+  }
+
+  void loop() {
+    potValue = analogRead(potPin);
+
+    if (potValue > 2000) {
+      Serial.println("WARNING");
+    }
+
+    Serial.println(potValue);
+    delay(500);
+  }
+
+--------------------------------------------------------------
+CODE - FOR ARDUINO UNO (Pin A0, 10-bit ADC, threshold = 500):
+
+  const int potPin = A0;
+  int potValue = 0;
+
+  void setup() {
+    Serial.begin(9600);
+    delay(1000);
+  }
+
+  void loop() {
+    potValue = analogRead(potPin);
+
+    if (potValue > 500) {
+      Serial.println("WARNING");
+    }
+
+    Serial.println(potValue);
+    delay(500);
+  }
+
+--------------------------------------------------------------
+PROCEDURE:
+
+1. Install Arduino IDE from arduino.cc.
+2. For ESP32: Go to File > Preferences, add this URL in
+   "Additional Board Manager URLs":
+   https://raw.githubusercontent.com/espressif/arduino-esp32
+   /gh-pages/package_esp32_index.json
+3. Go to Tools > Board > Board Manager > search "esp32" >
+   Install by Espressif Systems.
+4. Install CH340G driver from Google (if ESP32 not detected).
+5. Open Arduino IDE > File > New Sketch.
+6. Paste the correct code (ESP32 or Arduino).
+7. Tools > Board > Select "ESP32 Dev Module" or "Arduino Uno".
+8. Tools > Port > Select COM3 or COM4.
+9. Click Upload (right arrow button).
+10. Press EN/RST button on ESP32 (not needed for Arduino).
+11. Open Tools > Serial Monitor.
+12. Set baud rate: 115200 (ESP32) or 9600 (Arduino).
+13. Rotate the potentiometer slowly.
+    - Values change from 0 to max on screen.
+    - When value crosses threshold -> "WARNING" appears.
+
+--------------------------------------------------------------
+IMPORTANT FUNCTIONS EXPLAINED:
+
+  const int potPin = 34  : GPIO pin number for potentiometer
+  int potValue = 0       : Variable to store ADC reading
+  Serial.begin(115200)   : Start serial at 115200 baud
+  analogRead(potPin)     : Read ADC (0-4095 ESP32 / 0-1023 Uno)
+  Serial.println("WARNING"): Print alert to Serial Monitor
+  delay(500)             : Wait 500ms between readings
+
+--------------------------------------------------------------
+CONCLUSION:
+This program reads analog value from potentiometer and prints
+to Serial Monitor every 0.5 seconds. When value exceeds
+threshold, a WARNING alert is issued - simulating a real-world
+industrial alarm system for environment monitoring.
+
+--------------------------------------------------------------
+OBSERVATIONS TABLE:
+
+  Pot Position      ADC (ESP32)  ADC (Arduino)  Output
+  ----------------  -----------  -------------  --------
+  Fully Left (min)  ~0           ~0             No warning
+  Middle            ~2048        ~512           Warning (ESP32)
+  Fully Right (max) ~4095        ~1023          WARNING
+
+==============================================================
